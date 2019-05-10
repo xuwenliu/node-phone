@@ -1,0 +1,10 @@
+.list {
+  background: #ccc;
+}
+.list ul li {
+  list-style: none;
+  background: #666;
+  color: red;
+  padding: 10px 0;
+  font-size: 20px;
+}
