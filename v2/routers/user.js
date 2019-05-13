@@ -7,13 +7,6 @@ const { User } = require('../models/user');
 
 //注册
 router.post('/register', async (ctx) => {
-    ctx.session.token = '';
-
-    let registerTime = moment().unix();
-    let insertData = {
-        ...ctx.request.body,
-        registerTime,
-    }
     try {
         let oldUser = await User.findOne({
             userName: ctx.request.body.userName,
@@ -26,7 +19,7 @@ router.post('/register', async (ctx) => {
             }
             return;
         }
-        let data = await new User(insertData).save();
+        let data = await new User(ctx.request.body).save();
         ctx.body =  {
             success: true,
             data
@@ -41,13 +34,12 @@ router.post('/register', async (ctx) => {
 
 //登录
 router.post('/login', async (ctx) => {
-    ctx.session.token = '';
     let { userName, password } = ctx.request.body;
     let loginTime = moment().unix();
     
     try {
         let oldUser = await User.findOne({
-            userName,
+            userName
         })
         if (!oldUser) { 
             ctx.status = 400;
@@ -57,7 +49,8 @@ router.post('/login', async (ctx) => {
             }
             return;
         }
-        if (oldUser.password != password) {
+        let isMatch = await User.comparePassword(password, oldUser.password);
+        if (!isMatch) { //true or false
             ctx.status = 400;
             ctx.body = {
                 success: false,
@@ -71,7 +64,6 @@ router.post('/login', async (ctx) => {
                 success: true,
                 msg: '登录成功!',
             }
-            ctx.session.token = userName;
         }
     } catch (err) {
         ctx.status = 400;

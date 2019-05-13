@@ -1,11 +1,17 @@
 const mongoose = require('../db/db');
 const Schema = mongoose.Schema;
+const moment = require('moment');
+
+const bcrypt = require('bcrypt');
+const SALE_WORK_FACTOR = 10;//加盐强度
+
 
 //User Schema
 let UserSchema = new Schema({
     userName: {
         type: String,
         required: true,
+        unique: true, //用户名不能重复
         trim: true,
         min: 6,
         max: 12,
@@ -22,7 +28,7 @@ let UserSchema = new Schema({
     },
     registerTime: {
         type: Number,
-        default: 0,
+        default: moment().unix(),
     },
     loginTime: {
         type: Number,
@@ -30,6 +36,26 @@ let UserSchema = new Schema({
     }
 })
 
+UserSchema.pre('save', function (next) {
+    this.registerTime = moment().unix();
+    bcrypt.genSalt(SALE_WORK_FACTOR, (err, salt) => { //加盐
+        if (err) return next(err);
+        bcrypt.hash(this.password, salt, (err, hash) => { //加密
+            if (err) return next(err);
+            this.password = hash;
+            next();
+        })
+    })
+})
+
+UserSchema.statics.comparePassword = (_password,password) => {
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(_password, password, (err,isMatch) => {
+            if (!err) resolve(isMatch);
+            else reject(err);
+        })
+    })
+}
 
 
 module.exports = {
