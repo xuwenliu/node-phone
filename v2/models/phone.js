@@ -13,6 +13,9 @@ let BrandSchema = new Schema({
         trim: true,
 
     },
+}, {
+    collection: 'brand',
+    versionKey: false
 })
 
 
@@ -32,6 +35,9 @@ let PhoneModelSchema = new Schema({
         trim: true,
 
     },
+}, {
+    collection: 'phoneModel',
+    versionKey: false
 })
 
 //手机列表 Schema
@@ -68,10 +74,13 @@ let PhoneListSchema = new Schema({
         required: true,
         default: 0
     }
+}, {
+    collection: 'phoneList',
+    versionKey: false
 })
 
 module.exports = {
-    Brand: mongoose.model('Brand', BrandSchema, 'brand'),
-    PhoneModel: mongoose.model('PhoneModel', PhoneModelSchema, 'phoneModel'),
-    PhoneList: mongoose.model('PhoneList', PhoneListSchema, 'phoneList'),
+    Brand: mongoose.model('Brand', BrandSchema),
+    PhoneModel: mongoose.model('PhoneModel', PhoneModelSchema),
+    PhoneList: mongoose.model('PhoneList', PhoneListSchema),
 }

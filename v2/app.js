@@ -9,7 +9,9 @@ const staticResource = require('koa-static');
 const cors = require('koa2-cors');
 const bodyParser = require('koa-bodyparser');
 const glob = require('glob');
-const session = require('koa-session');
+const cookie = require('koa-cookie');
+
+const config = require('./db/config');
 
 
 
@@ -23,11 +25,39 @@ app.use(cors());
 //post请求参数处理
 app.use(bodyParser());
 
+//cookie 设置
+router.use(cookie.default());
+
+
 //配置koa-art-template模板
 render(app, {
     root: path.join(__dirname, 'views'), //模板文件放置的位置，这里是views文件夹下
     extname: '.html', //模板文件后缀名，可以是.art 等，个人喜好
     debug: process.env.NODE_ENV !== 'production', //是否开启debug模式
+})
+
+//用户未授权拦截
+app.use(async (ctx, next) => {
+    let loginUrl = ctx.request.url;
+    console.log(loginUrl)
+    if (loginUrl === '/api/user/register' || loginUrl === '/api/user/login') {
+        await next();
+    } else {
+        let tooken = ctx.cookies.get('token');
+        let {
+            authorization
+        } = ctx.request.headers;
+        if (authorization.split('=')[1] === tooken) {
+            await next();
+        } else {
+            ctx.body = {
+                success: false,
+                code: 401,
+                msg: '用户未授权，请重新登录!'
+            }
+        }
+    }
+
 })
 
 //引入routers下所有的api，并使用
@@ -49,4 +79,4 @@ glob.sync(path.resolve(__dirname, './routers', '**/*.js')).forEach(item => {
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.listen(9002);
+app.listen(config.port);
