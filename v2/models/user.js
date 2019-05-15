@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const moment = require('moment');
 
 const bcrypt = require('bcrypt');
-const SALE_WORK_FACTOR = 10; //加盐强度
+const { SALE_WORK_FACTOR } = require('../constant/constant');
 
 const uuidv1 = require('uuid/v1');
 

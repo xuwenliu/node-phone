@@ -2,6 +2,7 @@ const router = require("koa-router")();
 const moment = require("moment");
 
 const { PhoneList, Brand, PhoneModel } = require("../models/phone");
+const { PAGE, PAGE_SIZE } = require("../constant/constant");
 
 //获取手机品牌
 router.get("/brand", async ctx => {
@@ -44,19 +45,26 @@ router.get("/type", async ctx => {
 
 //获取手机列表
 router.get("/list", async ctx => {
-    await PhoneList.find({}, (err, data) => {
-        if (err) {
-            ctx.body = {
-                success: false,
-                msg: err
-            };
-        } else {
-            ctx.body = {
-                success: true,
-                data
-            };
-        }
-    });
+    try {
+        let page = ctx.query.page * 1 || PAGE;
+        let pageSize = ctx.query.pageSize * 1 || PAGE_SIZE;
+        let totalCount = await PhoneList.find({}).countDocuments();
+        let data = await PhoneList.find({}).skip((page - 1) * pageSize).limit(pageSize);
+        ctx.body = {
+            success: true,
+            data,
+            page,
+            pageSize,
+            totalCount
+        };
+    } catch (err) {
+        ctx.body = {
+            success: false,
+            msg: err
+        };
+    }
+   
+    
 });
 
 //添加
