@@ -1,65 +1,66 @@
-const router = require('koa-router')();
-const moment = require('moment');
+const router = require("koa-router")();
+const moment = require("moment");
 
-const { PhoneList, Brand, PhoneModel } = require('../models/phone');
+const { PhoneList, Brand, PhoneModel } = require("../models/phone");
 
 //获取手机品牌
-router.get('/brand', async (ctx) => {
+router.get("/brand", async ctx => {
     await Brand.find({}, (err, data) => {
         if (err) {
             ctx.body = {
                 success: false,
                 msg: err
-            }
+            };
         } else {
             ctx.body = {
                 success: true,
                 data
-            }
+            };
         }
     });
-})
+});
 
 //获取手机型号
-router.get('/type', async (ctx) => {
-
-    await PhoneModel.find({
-        brandId: ctx.query.brandId * 1
-    }, (err, data) => {
-        if (err) {
-            ctx.body = {
-                success: false,
-                msg: err
-            }
-        } else {
-            ctx.body = {
-                success: true,
-                data
+router.get("/type", async ctx => {
+    await PhoneModel.find(
+        {
+            brandId: ctx.query.brandId * 1
+        },
+        (err, data) => {
+            if (err) {
+                ctx.body = {
+                    success: false,
+                    msg: err
+                };
+            } else {
+                ctx.body = {
+                    success: true,
+                    data
+                };
             }
         }
-    });
-})
+    );
+});
 
 //获取手机列表
-router.get('/list', async (ctx) => {
+router.get("/list", async ctx => {
     await PhoneList.find({}, (err, data) => {
         if (err) {
             ctx.body = {
                 success: false,
                 msg: err
-            }
+            };
         } else {
             ctx.body = {
                 success: true,
                 data
-            }
+            };
         }
     });
-})
+});
 
 //添加
-router.post('/add', async (ctx) => {
-
+router.post("/add", async ctx => {
     let { brandId, typeId } = ctx.request.body;
 
     let brandObj = await Brand.findOne({
@@ -79,24 +80,24 @@ router.post('/add', async (ctx) => {
         ...ctx.request.body,
         brandName,
         typeName,
-        addTime,
-    }
+        addTime
+    };
     try {
         let data = await new PhoneList(insertData).save();
-        ctx.body =  {
+        ctx.body = {
             success: true,
             data
-        }
+        };
     } catch (err) {
         ctx.body = {
             success: false,
             msg: err
-        }
+        };
     }
-})
+});
 
 //删除
-router.delete('/delete', async (ctx) => {
+router.delete("/delete", async ctx => {
     let _id = ctx.query.id;
     try {
         let data = await PhoneList.deleteOne({
@@ -105,17 +106,17 @@ router.delete('/delete', async (ctx) => {
         ctx.body = {
             success: true,
             data
-        }
+        };
     } catch (err) {
         ctx.body = {
             success: false,
             msg: err
-        }
+        };
     }
-})
+});
 
 //修改信息
-router.get('/info', async (ctx) => {
+router.get("/info", async ctx => {
     let _id = ctx.query.id;
     try {
         let findData = await PhoneList.findOne({
@@ -124,17 +125,17 @@ router.get('/info', async (ctx) => {
         ctx.body = {
             success: true,
             data: findData
-        }
+        };
     } catch (err) {
         ctx.body = {
             success: false,
             msg: err
-        }
+        };
     }
-})
+});
 
 //修改
-router.put('/update', async (ctx) => {
+router.put("/update", async ctx => {
     let { _id, brandId, typeId, status } = ctx.request.body;
 
     //1.通过brandId 去brand表里查询出brandName
@@ -159,24 +160,27 @@ router.put('/update', async (ctx) => {
         brandName,
         typeName,
         updateTime,
-        status,
-    }
+        status
+    };
 
     //4.通过_id进行修改数据
     try {
-        let data = await PhoneList.updateOne({
-            _id
-        }, updateData);
+        let data = await PhoneList.updateOne(
+            {
+                _id
+            },
+            updateData
+        );
         ctx.body = {
             success: true,
             data
-        }
+        };
     } catch (err) {
         ctx.body = {
             success: false,
             msg: err
-        }
+        };
     }
-})
+});
 
 module.exports = router.routes();
