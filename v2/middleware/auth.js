@@ -2,7 +2,7 @@
 
 const Auth = async (ctx, next) => {
     let loginUrl = ctx.request.url;
-    if (loginUrl === "/api/user/register" || loginUrl === "/api/user/login") {
+    if (loginUrl === "/api/user/register" || loginUrl === "/api/user/login" || loginUrl === "/api/phone/face") {
         await next();
     } else {
         let tooken = ctx.cookies.get("token");

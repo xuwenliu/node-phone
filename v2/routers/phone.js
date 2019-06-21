@@ -4,6 +4,25 @@ const moment = require("moment");
 const { PhoneList, Brand, PhoneModel } = require("../models/phone");
 const { PAGE, PAGE_SIZE } = require("../constant/constant");
 
+const xlsx = require('node-xlsx');
+var sheets = xlsx.parse('static/face.xlsx');//获取到所有sheets
+
+//读取excel文件内容
+router.get('/face', async (ctx) => {
+    var str = '';
+    sheets.forEach(function (sheet) {
+        for(var rowId in sheet['data']){
+            var row=sheet['data'][rowId];
+            str += `${row[2]},`;
+        }
+    });
+    ctx.body = {
+        success: true,
+        data:str.split(','),
+    };
+})
+
+
 //获取手机品牌
 router.get("/brand", async ctx => {
     await Brand.find({}, (err, data) => {
